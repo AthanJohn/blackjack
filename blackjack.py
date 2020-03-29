@@ -1,97 +1,59 @@
-import random
-
-class Deck():
-
-
-    def __init__(self,cards,deck):
-        self.cards = cards
-        self.deck = deck
+from functions import try_except_else,who_wins,making_choice
+from classes import *
 
 
-    def create(self):
-        for card in self.cards:
-            for i in range(4):
-                self.deck.append(card)
-        return self.deck
-
-    def shuffle(self):
-        random.shuffle(self.deck)
-        return self.deck
-
-
-
-class Balance():
-
-
-    def __init__(self,amount):
-        self.amount = amount
-
-    def add_bet(self,bet):
-
-        while True:
-            if self.amount < bet:
-                print('Your bet must not exceed your available chips.')
-                bet = float(input('Please choose another bet: '))
-            else:
-                self.amount -= bet
-                break
-
-    def print_balance(self):
-        print('Your balance is: ',self.amount)
-
-    def win(self,bet):
-
-        self.amount += (bet*2)
-
-
-class Hands():
-
-    def __init__(self,player,deck):
-        self.player = player
-        self.deck = deck
-
-
-    def hand(self):
-            holding_cards = [self.deck[:1]]
-            self.desk.pop(0)
-
-
-cards = {'A': 1 , 'Two': 2, 'Three': 3, 'Four': 4, 'Five': 5, 'Six': 6, 'Seven': 7, 'Eight': 8, 'Nine': 9, 'Ten': 10,
+cards = {'Ace': 1 , 'Two': 2, 'Three': 3, 'Four': 4, 'Five': 5, 'Six': 6, 'Seven': 7, 'Eight': 8, 'Nine': 9, 'Ten': 10,
                      'Jack': 10, 'Queen': 10, 'King': 10}
-
-
+suits = ['Hearts', 'Diamonds', 'Spades', 'Clubs']
 
 Deck = Deck(cards,[])
+deck = Deck.create(suits)
 
-deck = Deck.create()
-
-sh_deck = Deck.shuffle()
-
-while True:
-    try:
-        balance = float(input('What is your balance? '))
-    except:
-        print('An error occurred! Please try again!')
-        continue
-    else:
-        print('Your initial amount is: ',balance)
-        break
-
-
-
+message = 'Please, enter your Balance: '
+balance = try_except_else(message)
+Balance = Balance(balance,0)
 
 while True:
-    try:
-        bet = float(input('How much money do you want to bet? '))
-    except:
-        print('An error occurred! Please try again!')
-        continue
-    else:
-        print('Your bet is: ',balance)
+    sh_deck = Deck.shuffle()
+    Balance.print_balance()
+
+    message = 'Please, enter your bet: '
+    Balance.bet = try_except_else(message)
+
+    Balance.add_bet()
+
+    p_h_cards = []
+    d_h_cards = []
+
+    pl_hands = Hands("Player", sh_deck, p_h_cards,0)
+    de_hands = Hands("Dealer", sh_deck, d_h_cards,0)
+
+    for i in range(2):
+        
+        de_hands.give_hand()
+        de_hands.calculate_score(cards)
+        if i == 0:
+            de_hands.show_cards()
+        
+        
+        pl_hands.give_hand()
+        pl_hands.calculate_score(cards)
+        if i == 1:
+            pl_hands.show_cards()
+        
+
+    who_wins(Balance, de_hands, pl_hands, cards)
+
+    print('\n')
+    Balance.print_balance()
+
+    if(Balance.amount == 0):
+        print("You lost all of your money! See ya!")
         break
 
-Balance = Balance(balance)
-Balance.add_bet(bet)
-
-
-
+    message = "Do you want to play again? Y or N\t"
+    play_again = making_choice(message)
+        
+    if play_again == 'N':
+        print('See ya!')
+        break
